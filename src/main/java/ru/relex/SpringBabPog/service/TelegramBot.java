@@ -34,6 +34,7 @@ public class TelegramBot extends TelegramLongPollingBot {
 
     private static final HashMap<ChatId, Chat> chats = new HashMap<>(); //это хэш
 
+    static final String PATH_TO_FILE = "C:/Users/endur/Documents/FilesFromTg/";
     static final String HELP_TEXT =
             "It's the bot saving your files on Yandex Disk\n\n" +
             "Type /start to send your document\n\n" +
@@ -57,8 +58,16 @@ public class TelegramBot extends TelegramLongPollingBot {
         Chat chat = getOrCreateChat(message);    //инициализируем chat
         ChatMessage ourChatMessage = ConvertToChatMessage(message);     //инициализируем наше сообщение, которое содержит текст или сообщение
         String textResponse = chat.MainAcceptMessage(ourChatMessage);      //это ответ, который тг бот отправляет в чат (посмотри реализацию acceptMessage)
-        SaveDocument(ourChatMessage.getDocument());
-        sendMessage(chat.getChatId().getValue(), textResponse);     //сам метод отправки сообщения
+        if (ourChatMessage.getDocument() != null) {
+            SaveDocument(ourChatMessage.getDocument());
+        }
+        if (textResponse == null) {
+            OutputDocument(ourChatMessage.getText());
+        }
+        else {
+            sendMessage(chat.getChatId().getValue(), textResponse);     //сам метод отправки сообщения
+        }
+
     }
 
     private Chat getOrCreateChat(Message message){
@@ -85,30 +94,27 @@ public class TelegramBot extends TelegramLongPollingBot {
         return new ChatDocument(telegramDocument.getFileName(), telegramDocument.getFileSize(), telegramDocument);
     }
 
+    private String OutputDocument(String myPath) {
+        return "nothing";
+    }
 
     private void SaveDocument(ChatDocument recievedDocument) {
         Document document = recievedDocument.document();
-        if (document != null) {
-            try {
-                GetFile getFile = new GetFile();
-                getFile.setFileId(document.getFileId());
-                org.telegram.telegrambots.meta.api.objects.File file = execute(getFile);
-
-                // получаем ссылку на файл
-                String fileUrl = "https://api.telegram.org/file/bot" + getBotToken() + "/" + file.getFilePath();
-
-                // сохраняем файл локально
-                URL url = new URL(fileUrl);
-                InputStream in = url.openStream();
-                Files.copy(in, Paths.get("files/" + document.getFileName()), StandardCopyOption.REPLACE_EXISTING);
-                in.close();
-
-            } catch (TelegramApiException | MalformedURLException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+        try {
+            GetFile getFile = new GetFile();
+            getFile.setFileId(document.getFileId());
+            org.telegram.telegrambots.meta.api.objects.File file = execute(getFile);
+            String fileUrl = "https://api.telegram.org/file/bot" + getBotToken() + "/" + file.getFilePath();
+            URL url = new URL(fileUrl);
+            InputStream in = url.openStream();
+            Files.copy(in, Paths.get(PATH_TO_FILE + document.getFileName()), StandardCopyOption.REPLACE_EXISTING);
+            in.close();
+        } catch (TelegramApiException | MalformedURLException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
+
 
 
     }

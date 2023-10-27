@@ -14,12 +14,11 @@ public class WaitForDocumentState extends ChatState {
             //GetFile getFile = new GetFile();
             //getFile.setFileId(document.getFileId());
             //org.telegram.telegrambots.meta.api.objects.File file = execute(getFile);
-
             return new ChatMessageHandlingResult("Документ принят", new InitChatState());   //отправляем сообщение документ принят и возвращаемся в начальное состояние
         }
         return switch (message.getText()){         //иначе вот
             case "/document" -> new ChatMessageHandlingResult("Документ принят", new InitChatState());
-            case "/back" -> new ChatMessageHandlingResult("Отмена, назад", new InitChatState());
+            case "/back" -> new ChatMessageHandlingResult("Отмена ожидания файла", new InitChatState());
             default -> new ChatMessageHandlingResult("Я тебя не понял, отправь документ или введи /back", this);
         };
     }
