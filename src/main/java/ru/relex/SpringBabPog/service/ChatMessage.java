@@ -1,5 +1,7 @@
 package ru.relex.SpringBabPog.service;
 
+import org.telegram.telegrambots.meta.api.objects.Document;
+
 public final class ChatMessage
 {
     private final String text;
