@@ -5,10 +5,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.GetFile;
+import org.telegram.telegrambots.meta.api.methods.send.SendDocument;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.objects.Document;
-import org.telegram.telegrambots.meta.api.objects.Message;
-import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.*;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
@@ -19,6 +18,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
@@ -34,26 +34,24 @@ public class TelegramBot extends TelegramLongPollingBot {
 
     private static final HashMap<ChatId, Chat> chats = new HashMap<>(); //это хэш
 
-    static final String PATH_TO_FILE = "C:/Users/endur/Documents/FilesFromTg/";
-    static final String HELP_TEXT =
-            "It's the bot saving your files on Yandex Disk\n\n" +
-            "Type /start to send your document\n\n" +
-            "Type /mydocuments to see your documents\n\n" +
-            "Type /deletedocuments to delete your documents";
+    public static String PATH_TO_FILE = "C:/Users/endur/Documents/FilesFromTg/";
+    public static final String HELP_TEXT =
+            "It's the bot saving your files on your PC\n\n" +
+            "Type /start to start a welcome message\n\n" +
+            "Type /savedocument to save your document\n\n" +
+            "Type /getdocument to get document\n\n" +
+            "Type /deletedocument to delete your documents\n\n" +
+            "Type /showdocuments to show all your saved documents";
     final BotConfig config;
     public TelegramBot(BotConfig config) {
         this.config = config;
     }
     @Override
     public void onUpdateReceived(Update update) {         //метод в котором происходит вся работа
-
         if (!update.hasMessage())
         {
             return;
         }
-
-
-
         Message message = update.getMessage();      //извлекаем сообщение из update
         Chat chat = getOrCreateChat(message);    //инициализируем chat
         ChatMessage ourChatMessage = ConvertToChatMessage(message);     //инициализируем наше сообщение, которое содержит текст или сообщение
@@ -61,8 +59,8 @@ public class TelegramBot extends TelegramLongPollingBot {
         if (ourChatMessage.getDocument() != null) {
             SaveDocument(ourChatMessage.getDocument());
         }
-        if (textResponse == null) {
-            OutputDocument(ourChatMessage.getText());
+        if (textResponse == "Введите имя файла") {
+            OutputDocument(chat.getChatId(), ourChatMessage.getText());
         }
         else {
             sendMessage(chat.getChatId().getValue(), textResponse);     //сам метод отправки сообщения
@@ -94,8 +92,31 @@ public class TelegramBot extends TelegramLongPollingBot {
         return new ChatDocument(telegramDocument.getFileName(), telegramDocument.getFileSize(), telegramDocument);
     }
 
-    private String OutputDocument(String myPath) {
-        return "nothing";
+    private void OutputDocument(ChatId chatId, String documentName) {
+        File file = new File(PATH_TO_FILE + documentName);
+        if (file.exists()) {
+            // Создание объекта InputFile из файла
+            InputFile inputFile = new InputFile(file);
+
+            // Создание объекта SendDocument
+            SendDocument sendDocument = new SendDocument();
+            sendDocument.setChatId(chatId.getValue()); // Установка ID чата для отправки документа
+            sendDocument.setDocument(inputFile); // Установка документа для отправки
+
+            try {
+                // Отправка документа в телеграм боте
+                execute(sendDocument);
+                sendMessage(chatId.getValue(), "Файл выведен!");
+                // Дополнительные действия после успешной отправки...
+            } catch (TelegramApiException e) {
+                e.printStackTrace();
+                sendMessage(chatId.getValue(), "Ошибка вывода документа");
+                // Действия в случае ошибки при отправке документа...
+            }
+        }
+        else {
+            sendMessage(chatId.getValue(), "Файл отсутствует или неправильное имя файла");
+        }
     }
 
     private void SaveDocument(ChatDocument recievedDocument) {
@@ -124,24 +145,30 @@ public class TelegramBot extends TelegramLongPollingBot {
         message.setChatId(String.valueOf(chatId));      //задать айди сообщению, чтоб знал куда отправлять
         message.setText(textToSend);
 
-
-
-
-        KeyboardOfDocumentState keyboardDoc = new KeyboardOfDocumentState();    //клавиатура (пока что статичная клава)
-        keyboardDoc.KeyboardFunc();
-        message.setReplyMarkup(keyboardDoc.getKeyboardMarkup());
-
-
-
+        if (Objects.equals(textToSend, "Отправь свой документ")) {
+            message.setReplyMarkup(TelegramKeyboard("/back", "/document"));
+        } else if (Objects.equals(textToSend, "Введи имя файла (вместе с расширением)")) {
+            message.setReplyMarkup(TelegramKeyboard("/back", "/getnothing"));
+        }
 
         try {
 
             execute(message);
         }
         catch (TelegramApiException e) {
-            //здесь должен быть логер
             e.printStackTrace();
         }
+    }
+
+    private ReplyKeyboardMarkup TelegramKeyboard(String firstCommand, String secondCommand) {
+        ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
+        List<KeyboardRow> keyboardRows = new ArrayList<>();
+        KeyboardRow row = new KeyboardRow();
+        row.add(firstCommand);
+        row.add(secondCommand);
+        keyboardRows.add(row);
+        keyboardMarkup.setKeyboard(keyboardRows);
+        return keyboardMarkup;
     }
 
     @Override

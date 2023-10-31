@@ -15,7 +15,7 @@ public final class ChatMessage
     public String getText(){
         return text;
     }
-    // TEXT COOMent
+
 
     public ChatDocument getDocument() {
         return document;
