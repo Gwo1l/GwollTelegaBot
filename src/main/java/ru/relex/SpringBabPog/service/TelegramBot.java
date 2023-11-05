@@ -34,7 +34,7 @@ public class TelegramBot extends TelegramLongPollingBot {
 
     private static final HashMap<ChatId, Chat> chats = new HashMap<>(); //это хэш
 
-    public static String PATH_TO_FILE = "C:/Users/endur/Documents/FilesFromTg/";
+    //public String PATH_TO_FILE = "C:/Users/endur/Documents/FilesFromTg/";
     public static final String HELP_TEXT =
             "It's the bot saving your files on your PC\n\n" +
             "Type /start to start a welcome message\n\n" +
@@ -57,10 +57,13 @@ public class TelegramBot extends TelegramLongPollingBot {
         ChatMessage ourChatMessage = ConvertToChatMessage(message);     //инициализируем наше сообщение, которое содержит текст или сообщение
         String textResponse = chat.MainAcceptMessage(ourChatMessage);      //это ответ, который тг бот отправляет в чат (посмотри реализацию acceptMessage)
         if (ourChatMessage.getDocument() != null) {
-            SaveDocument(ourChatMessage.getDocument());
+            SaveDocument(chat, ourChatMessage.getDocument());
         }
-        if (textResponse == "Введите имя файла") {
-            OutputDocument(chat.getChatId(), ourChatMessage.getText());
+        if (Objects.equals(textResponse, "Введите имя файла")) {
+            OutputDocument(chat, ourChatMessage.getText());
+        }
+        else if (Objects.equals(textResponse, "Введите путь")) {
+            SetRepositoryPath(chat, ourChatMessage.getText());
         }
         else {
             sendMessage(chat.getChatId().getValue(), textResponse);     //сам метод отправки сообщения
@@ -92,7 +95,9 @@ public class TelegramBot extends TelegramLongPollingBot {
         return new ChatDocument(telegramDocument.getFileName(), telegramDocument.getFileSize(), telegramDocument);
     }
 
-    private void OutputDocument(ChatId chatId, String documentName) {
+    private void OutputDocument(Chat chat, String documentName) {
+        ChatId chatId = chat.getChatId();
+        String PATH_TO_FILE = chat.getChatInfo().getPATH_TO_FILE();
         File file = new File(PATH_TO_FILE + documentName);
         if (file.exists()) {
             // Создание объекта InputFile из файла
@@ -119,7 +124,13 @@ public class TelegramBot extends TelegramLongPollingBot {
         }
     }
 
-    private void SaveDocument(ChatDocument recievedDocument) {
+    private void SetRepositoryPath(Chat chat, String path) {
+        chat.getChatInfo().setPATH_TO_FILE(path);
+        ChatId chatId = chat.getChatId();
+        sendMessage(chatId.getValue(), "Путь изменен на " + path);
+    }
+
+    private void SaveDocument(Chat chat, ChatDocument recievedDocument) {
         Document document = recievedDocument.document();
         try {
             GetFile getFile = new GetFile();
@@ -128,7 +139,7 @@ public class TelegramBot extends TelegramLongPollingBot {
             String fileUrl = "https://api.telegram.org/file/bot" + getBotToken() + "/" + file.getFilePath();
             URL url = new URL(fileUrl);
             InputStream in = url.openStream();
-            Files.copy(in, Paths.get(PATH_TO_FILE + document.getFileName()), StandardCopyOption.REPLACE_EXISTING);
+            Files.copy(in, Paths.get(chat.getChatInfo().getPATH_TO_FILE() + document.getFileName()), StandardCopyOption.REPLACE_EXISTING);
             in.close();
         } catch (TelegramApiException | MalformedURLException e) {
             e.printStackTrace();
