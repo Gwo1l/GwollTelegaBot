@@ -148,9 +148,16 @@ public class TelegramBot extends TelegramLongPollingBot {
     }
 
     private void SetRepositoryPath(Chat chat, String path) {
-        chat.getChatInfo().setPATH_TO_FILE(path);
-        ChatId chatId = chat.getChatId();
-        sendMessage(chatId.getValue(), "Путь изменен на " + path);
+        File folder = new File(path);
+        if (folder.isDirectory()) {
+            chat.getChatInfo().setPATH_TO_FILE(path);
+            ChatId chatId = chat.getChatId();
+            sendMessage(chatId.getValue(), "Путь изменен на " + path);
+        }
+        else {
+            sendMessage(chat.getChatId().getValue(), "Неверный путь");
+        }
+
     }
 
     private void SaveDocument(Chat chat, ChatDocument recievedDocument) {
