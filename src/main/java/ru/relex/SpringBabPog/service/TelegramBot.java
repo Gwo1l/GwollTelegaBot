@@ -8,6 +8,7 @@ import org.telegram.telegrambots.meta.api.methods.GetFile;
 import org.telegram.telegrambots.meta.api.methods.send.SendDocument;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.*;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
@@ -27,6 +28,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 
+
 @Slf4j
 @Component
 public class TelegramBot extends TelegramLongPollingBot {
@@ -42,6 +44,7 @@ public class TelegramBot extends TelegramLongPollingBot {
             "Type /getdocument to get document\n\n" +
             "Type /deletedocument to delete your documents\n\n" +
             "Type /showdocuments to show all your saved documents";
+
     final BotConfig config;
     public TelegramBot(BotConfig config) {
         this.config = config;
@@ -56,17 +59,13 @@ public class TelegramBot extends TelegramLongPollingBot {
         Chat chat = getOrCreateChat(message);    //инициализируем chat
         ChatMessage ourChatMessage = ConvertToChatMessage(message);     //инициализируем наше сообщение, которое содержит текст или сообщение
         String textResponse = chat.MainAcceptMessage(ourChatMessage);      //это ответ, который тг бот отправляет в чат (посмотри реализацию acceptMessage)
-        if (ourChatMessage.getDocument() != null) {
-            SaveDocument(chat, ourChatMessage.getDocument());
-        }
-        if (Objects.equals(textResponse, "Введите имя файла")) {
-            OutputDocument(chat, ourChatMessage.getText());
-        }
-        else if (Objects.equals(textResponse, "Введите путь")) {
-            SetRepositoryPath(chat, ourChatMessage.getText());
-        }
-        else {
-            sendMessage(chat.getChatId().getValue(), textResponse);     //сам метод отправки сообщения
+
+        switch (textResponse) {
+            case TextMessages.EXEC_SAVE -> SaveDocument(chat, ourChatMessage.getDocument());
+            case TextMessages.EXEC_GET -> OutputDocument(chat, ourChatMessage.getText());
+            case TextMessages.EXEC_PATH -> SetRepositoryPath(chat, ourChatMessage.getText());
+            case TextMessages.SHOW_MESSAGE -> ShowDocuments(chat);
+            default -> sendMessage(chat.getChatId().getValue(), textResponse);
         }
 
     }
@@ -93,6 +92,30 @@ public class TelegramBot extends TelegramLongPollingBot {
         }
 
         return new ChatDocument(telegramDocument.getFileName(), telegramDocument.getFileSize(), telegramDocument);
+    }
+
+    private void ShowDocuments(Chat chat) {
+        String PATH_TO_FILE = chat.getChatInfo().getPATH_TO_FILE();
+        File folder = new File(PATH_TO_FILE);
+        if (folder.isDirectory()) {
+            File[] files = folder.listFiles();
+            if (files != null && files.length > 0) {
+                StringBuilder sb = new StringBuilder();
+                // Перебираем файлы и добавляем их имена в строку
+                for (File file : files) {
+                    sb.append(file.getName()).append("\n\n");
+                }
+                sendMessage(chat.getChatId().getValue(), TextMessages.SHOW_MESSAGE);
+                sendMessage(chat.getChatId().getValue(), sb.toString());
+                sendMessage(chat.getChatId().getValue(), "Введите /getdocument чтобы получить документ");
+            }
+            else {
+                sendMessage(chat.getChatId().getValue(), "Папка пуста");
+            }
+        }
+        else {
+            sendMessage(chat.getChatId().getValue(), "Неверный указанный путь");
+        }
     }
 
     private void OutputDocument(Chat chat, String documentName) {
@@ -141,6 +164,7 @@ public class TelegramBot extends TelegramLongPollingBot {
             InputStream in = url.openStream();
             Files.copy(in, Paths.get(chat.getChatInfo().getPATH_TO_FILE() + document.getFileName()), StandardCopyOption.REPLACE_EXISTING);
             in.close();
+            sendMessage(chat.getChatId().getValue(), "Документ сохранен!");
         } catch (TelegramApiException | MalformedURLException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -156,18 +180,24 @@ public class TelegramBot extends TelegramLongPollingBot {
         message.setChatId(String.valueOf(chatId));      //задать айди сообщению, чтоб знал куда отправлять
         message.setText(textToSend);
 
-        if (Objects.equals(textToSend, "Отправь свой документ")) {
+        /*if (Objects.equals(textToSend, TextMessages.SAVE_MESSAGE)) {
             message.setReplyMarkup(TelegramKeyboard("/back", "/document"));
-        } else if (Objects.equals(textToSend, "Введи имя файла (вместе с расширением)")) {
+        } else if (Objects.equals(textToSend, TextMessages.GET_MESSAGE) || Objects.equals(textToSend, TextMessages.DELETE_MESSAGE)) {
             message.setReplyMarkup(TelegramKeyboard("/back", "/getnothing"));
-        }
+        }*/
+        KeyboardSwitch(textToSend, message);
 
         try {
-
             execute(message);
         }
         catch (TelegramApiException e) {
             e.printStackTrace();
+        }
+    }
+    private void KeyboardSwitch(String textToSend, SendMessage message) {
+        switch (textToSend) {
+            case TextMessages.SAVE_MESSAGE -> message.setReplyMarkup(TelegramKeyboard("/back", "/document"));
+            case TextMessages.PATH_MESSAGE -> message.setReplyMarkup(TelegramKeyboard("/back", "/document"));
         }
     }
 

@@ -1,7 +1,10 @@
-package ru.relex.SpringBabPog.service;
+package ru.relex.SpringBabPog.States;
 
-import org.telegram.telegrambots.meta.api.methods.GetFile;
-import org.telegram.telegrambots.meta.api.objects.Document;
+import ru.relex.SpringBabPog.States.InitChatState;
+import ru.relex.SpringBabPog.service.ChatMessage;
+import ru.relex.SpringBabPog.service.ChatMessageHandlingResult;
+import ru.relex.SpringBabPog.service.ChatState;
+import ru.relex.SpringBabPog.service.TextMessages;
 
 //import static jdk.javadoc.internal.tool.Main.execute;
 
@@ -17,7 +20,7 @@ public class WaitForDocumentState extends ChatState {
             //GetFile getFile = new GetFile();
             //getFile.setFileId(document.getFileId());
             //org.telegram.telegrambots.meta.api.objects.File file = execute(getFile);
-            return new ChatMessageHandlingResult("Документ принят", new InitChatState());   //отправляем сообщение документ принят и возвращаемся в начальное состояние
+            return new ChatMessageHandlingResult(TextMessages.EXEC_SAVE, new InitChatState());   //отправляем сообщение документ принят и возвращаемся в начальное состояние
         }
 
         return switch (message.getText()){         //иначе вот
