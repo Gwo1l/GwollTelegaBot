@@ -65,6 +65,7 @@ public class TelegramBot extends TelegramLongPollingBot {
             case TextMessages.EXEC_GET -> OutputDocument(chat, ourChatMessage.getText());
             case TextMessages.EXEC_PATH -> SetRepositoryPath(chat, ourChatMessage.getText());
             case TextMessages.SHOW_MESSAGE -> ShowDocuments(chat);
+            case TextMessages.EXEC_DELETE -> DeleteDocument(chat, ourChatMessage.getText());
             default -> sendMessage(chat.getChatId().getValue(), textResponse);
         }
 
@@ -147,6 +148,23 @@ public class TelegramBot extends TelegramLongPollingBot {
         }
     }
 
+    private void DeleteDocument(Chat chat, String documentName) {
+        ChatId chatId = chat.getChatId();
+        String PATH_TO_FILE = chat.getChatInfo().getPATH_TO_FILE();
+        File file = new File(PATH_TO_FILE + documentName);
+        if (file.exists()) {
+            boolean deleted = file.delete(); // Удаление файла
+            if (deleted) {
+                sendMessage(chatId.getValue(), "Файл удалён!");
+                // Дополнительные действия после успешного удаления...
+            } else {
+                sendMessage(chatId.getValue(), "Ошибка удаления документа");
+                // Действия в случае ошибки при удалении файла...
+            }
+        } else {
+            sendMessage(chatId.getValue(), "Файл отсутствует или неправильное имя файла");
+        }
+    }
     private void SetRepositoryPath(Chat chat, String path) {
         chat.getChatInfo().setPATH_TO_FILE(path);
         ChatId chatId = chat.getChatId();
