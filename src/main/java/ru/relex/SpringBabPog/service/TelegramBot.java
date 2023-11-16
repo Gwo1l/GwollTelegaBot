@@ -12,7 +12,9 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMa
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.relex.SpringBabPog.config.BotConfig;
+
 
 
 import java.io.IOException;
@@ -27,6 +29,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
+import java.util.Map;
 
 
 @Slf4j
@@ -39,20 +42,22 @@ public class TelegramBot extends TelegramLongPollingBot {
     //public String PATH_TO_FILE = "C:/Users/endur/Documents/FilesFromTg/";
     public static final String HELP_TEXT =
             "It's the bot saving your files on your PC\n\n" +
-            "Type /start to start a welcome message\n\n" +
-            "Type /savedocument to save your document\n\n" +
-            "Type /getdocument to get document\n\n" +
-            "Type /deletedocument to delete your documents\n\n" +
-            "Type /showdocuments to show all your saved documents";
+                    "Type /start to start a welcome message\n\n" +
+                    "Type /savedocument to save your document\n\n" +
+                    "Type /getdocument to get document\n\n" +
+                    "Type /renamedocument to rename document\n\n" +
+                    "Type /deletedocument to delete your documents\n\n" +
+                    "Type /showdocuments to show all your saved documents";
 
     final BotConfig config;
+
     public TelegramBot(BotConfig config) {
         this.config = config;
     }
+
     @Override
     public void onUpdateReceived(Update update) {         //метод в котором происходит вся работа
-        if (!update.hasMessage())
-        {
+        if (!update.hasMessage()) {
             return;
         }
         Message message = update.getMessage();      //извлекаем сообщение из update
@@ -65,15 +70,16 @@ public class TelegramBot extends TelegramLongPollingBot {
             case TextMessages.EXEC_GET -> OutputDocument(chat, ourChatMessage.getText());
             case TextMessages.EXEC_PATH -> SetRepositoryPath(chat, ourChatMessage.getText());
             case TextMessages.SHOW_MESSAGE -> ShowDocuments(chat);
+            case TextMessages.EXEC_RENAME -> ChangeDocumentName(chat, ourChatMessage.getText());
             case TextMessages.EXEC_DELETE -> DeleteDocument(chat, ourChatMessage.getText());
             default -> sendMessage(chat.getChatId().getValue(), textResponse);
         }
 
     }
 
-    private Chat getOrCreateChat(Message message){
+    private Chat getOrCreateChat(Message message) {
         ChatId chatId = new ChatId(message.getChat().getId()); //получаем id чата
-        if(chats.containsKey(chatId)){      //проверяем был ли созднан у нас чат до этого (проверяем через хэшмап)
+        if (chats.containsKey(chatId)) {      //проверяем был ли созднан у нас чат до этого (проверяем через хэшмап)
             return chats.get(chatId);       //и если был создан, то возвращаем этот чат
         }
 
@@ -82,13 +88,13 @@ public class TelegramBot extends TelegramLongPollingBot {
         return chat;
     }
 
-    private ChatMessage ConvertToChatMessage(Message telegramMessage){
+    private ChatMessage ConvertToChatMessage(Message telegramMessage) {
         return new ChatMessage(telegramMessage.getText(), GetChatDocument(telegramMessage));
     }
 
-    private ChatDocument GetChatDocument(Message telegramMessage){
+    private ChatDocument GetChatDocument(Message telegramMessage) {
         Document telegramDocument = telegramMessage.getDocument();
-        if(telegramDocument == null){
+        if (telegramDocument == null) {
             return null;
         }
 
@@ -109,12 +115,10 @@ public class TelegramBot extends TelegramLongPollingBot {
                 sendMessage(chat.getChatId().getValue(), TextMessages.SHOW_MESSAGE);
                 sendMessage(chat.getChatId().getValue(), sb.toString());
                 sendMessage(chat.getChatId().getValue(), "Введите /getdocument чтобы получить документ");
-            }
-            else {
+            } else {
                 sendMessage(chat.getChatId().getValue(), "Папка пуста");
             }
-        }
-        else {
+        } else {
             sendMessage(chat.getChatId().getValue(), "Неверный указанный путь");
         }
     }
@@ -142,11 +146,31 @@ public class TelegramBot extends TelegramLongPollingBot {
                 sendMessage(chatId.getValue(), "Ошибка вывода документа");
                 // Действия в случае ошибки при отправке документа...
             }
-        }
-        else {
+        } else {
             sendMessage(chatId.getValue(), "Файл отсутствует или неправильное имя файла");
         }
     }
+
+    private void ChangeDocumentName(Chat chat, String documentName) {
+        ChatId chatId = chat.getChatId();
+        String PATH_TO_FILE = chat.getChatInfo().getPATH_TO_FILE();
+        File oldFile = new File(PATH_TO_FILE + documentName);
+        //получить строку с новым именем файла от пользователя
+        String NewDocumentName = "null.docx";
+        File newFile = new File(PATH_TO_FILE + NewDocumentName);
+
+        if (oldFile.exists()) { //работает лучше, если oldFile!=newFile
+            boolean isRenamed = oldFile.renameTo(newFile);
+            if (isRenamed) {
+                sendMessage(chatId.getValue(), "Файл успешно переименован.");
+            } else {
+                sendMessage(chatId.getValue(), "Не удалось переименовать файл.");
+            }
+        } else {
+            sendMessage(chatId.getValue(), ("Файл " + documentName + " не существует."));
+        }
+    }
+
 
     private void DeleteDocument(Chat chat, String documentName) {
         ChatId chatId = chat.getChatId();
@@ -165,7 +189,8 @@ public class TelegramBot extends TelegramLongPollingBot {
             sendMessage(chatId.getValue(), "Файл отсутствует или неправильное имя файла");
         }
     }
-    private void SetRepositoryPath(Chat chat, String path) {
+
+        private void SetRepositoryPath(Chat chat, String path) {
         File folder = new File(path);
         if (folder.isDirectory()) {
             chat.getChatInfo().setPATH_TO_FILE(path);
