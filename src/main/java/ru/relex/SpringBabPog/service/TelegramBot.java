@@ -70,7 +70,7 @@ public class TelegramBot extends TelegramLongPollingBot {
             case TextMessages.EXEC_GET -> OutputDocument(chat, ourChatMessage.getText());
             case TextMessages.EXEC_PATH -> SetRepositoryPath(chat, ourChatMessage.getText());
             case TextMessages.SHOW_MESSAGE -> ShowDocuments(chat);
-            case TextMessages.EXEC_RENAME -> ChangeDocumentName(chat, ourChatMessage.getText());
+            case TextMessages.EXEC_RENAME -> RenameDocument(chat, ourChatMessage.getText());
             case TextMessages.EXEC_DELETE -> DeleteDocument(chat, ourChatMessage.getText());
             default -> sendMessage(chat.getChatId().getValue(), textResponse);
         }
@@ -151,23 +151,51 @@ public class TelegramBot extends TelegramLongPollingBot {
         }
     }
 
-    private void ChangeDocumentName(Chat chat, String documentName) {
+    private void RenameDocument(Chat chat, String documentName) {
+        String[] names = documentName.split(":");
+        String oldName = names[0];
+        String newName = names[1];
+        char lastSymb = oldName.charAt(oldName.length() - 1);
+        char firstSymb = newName.charAt(0);
+        if (lastSymb == ' ') {
+            oldName = oldName.substring(0, oldName.length() - 1);
+        }
+        if (firstSymb == ' ') {
+            newName = newName.substring(1);
+        }
         ChatId chatId = chat.getChatId();
+        if (oldName.equals(newName)) {
+            sendMessage(chatId.getValue(), "Имена файлов совпадают");
+            return;
+        }
+        String typeoldName = GetFileType(oldName);
+        String typenewName = GetFileType(newName);
+        if (!typenewName.equals(typeoldName)) {
+            sendMessage(chatId.getValue(), "Нельзя переименовать файл, т.к типы не совпадают");
+            return;
+        }
         String PATH_TO_FILE = chat.getChatInfo().getPATH_TO_FILE();
-        File oldFile = new File(PATH_TO_FILE + documentName);
-        //получить строку с новым именем файла от пользователя
-        String NewDocumentName = "null.docx";
-        File newFile = new File(PATH_TO_FILE + NewDocumentName);
-
-        if (oldFile.exists()) { //работает лучше, если oldFile!=newFile
+        File oldFile = new File(PATH_TO_FILE + oldName);
+        File newFile = new File(PATH_TO_FILE + newName);
+        if (oldFile.exists()) {
             boolean isRenamed = oldFile.renameTo(newFile);
             if (isRenamed) {
-                sendMessage(chatId.getValue(), "Файл успешно переименован.");
+                sendMessage(chatId.getValue(), "Файл успешно переименован!");
             } else {
-                sendMessage(chatId.getValue(), "Не удалось переименовать файл.");
+                sendMessage(chatId.getValue(), "Не удалось переименовать файл");
             }
         } else {
-            sendMessage(chatId.getValue(), ("Файл " + documentName + " не существует."));
+            sendMessage(chatId.getValue(), ("Файл " + oldName + " не существует"));
+        }
+    }
+
+    private String GetFileType(String filename) {
+        int ind = filename.lastIndexOf('.');
+        if (ind == -1) {
+            return "";
+        }
+        else {
+            return filename.substring(ind + 1);
         }
     }
 
