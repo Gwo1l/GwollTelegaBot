@@ -5,7 +5,7 @@ import ru.relex.SpringBabPog.service.ChatMessageHandlingResult;
 import ru.relex.SpringBabPog.service.ChatState;
 import ru.relex.SpringBabPog.service.TextMessages;
 
-public final class CreatePathState extends ChatState {
+public final class CreateFolderState extends ChatState {
 
     @Override
     public ChatMessageHandlingResult AcceptMessage(ChatMessage message) {

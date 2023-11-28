@@ -41,14 +41,14 @@ public class TelegramBot extends TelegramLongPollingBot {
 
     //public String PATH_TO_FILE = "C:/Users/endur/Documents/FilesFromTg/";
     public static final String HELP_TEXT =
-            "It's the bot saving your files on your PC\n\n" +
-                    "Type /start to start a welcome message\n\n" +
-                    "Type /savedocument to save your document\n\n" +
-                    "Type /getdocument to get document\n\n" +
-                    "Type /renamedocument to rename document\n\n" +
-                    "Type /deletedocument to delete your documents\n\n" +
-                    "Type /createnewpath to create new path\n\n" +
-                    "Type /showdocuments to show all your saved documents";
+            "Это бот, сохраняющий ваши файлы на компьютере\n\n" +
+                    "Введите /start, чтобы запустить приветственное сообщение\n\n" +
+                    "Введите /savedocument для сохранения документа\n\n" +
+                    "Введите /getdocument для получения документа\n\n" +
+                    "Введите /renamedocument для переименования документа\n\n" +
+                    "Введите /deletedocument для удаления своих документов\n\n" +
+                    "Введите /createnewpath для создания новой папки\n\n" +
+                    "Введите /showdocuments, чтобы показать все сохраненные документы";
 
     final BotConfig config;
 

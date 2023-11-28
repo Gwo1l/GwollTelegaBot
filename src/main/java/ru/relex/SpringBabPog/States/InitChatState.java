@@ -15,7 +15,7 @@ public final class InitChatState extends ChatState {
             case "/getdocument" -> new ChatMessageHandlingResult(TextMessages.GET_MESSAGE, new NameOfDocumentState());
             case "/setpath" -> new ChatMessageHandlingResult(TextMessages.PATH_MESSAGE, new RepositoryPathState());
             case "/showdocuments" -> new ChatMessageHandlingResult(TextMessages.SHOW_MESSAGE, new InitChatState());
-            case "/createnewpath" -> new ChatMessageHandlingResult(TextMessages.CREATE_PATH, new CreatePathState());
+            case "/createnewpath" -> new ChatMessageHandlingResult(TextMessages.CREATE_PATH, new CreateFolderState());
             case "/renamedocument" -> new ChatMessageHandlingResult(TextMessages.RENAME_MESSAGE, new RenameChatState());
             case "/deletedocument" -> new ChatMessageHandlingResult(TextMessages.DELETE_MESSAGE, new DeleteDocumentState());
             case "/help" -> new ChatMessageHandlingResult(TelegramBot.HELP_TEXT, this);     //this означает что мы передаем то же самое состояние (ну или не меняем начальное состояние)

@@ -12,7 +12,7 @@ public class TextMessages {
     public final static String EXEC_GET = "GET";
     public final static String SHOW_MESSAGE = "Документы вашего репозитория: ";
     public final static String RENAME_MESSAGE = "Введите имя файла, который хотите переименовать, а затем через ':' введите новое имя \n(Имя файла : Новое имя файла)";
-    public final static String CREATE_PATH = "Введите путь к вашему репозиторию, а затем через ';' введите имя Например, /путь/к/вашему/репозиторию; Новая папка)";
+    public final static String CREATE_PATH = "Введите путь к вашему репозиторию, а затем через ';' введите имя (имя папки не должно содержать ';')\n Например, /путь/к/вашему/репозиторию; Новая папка)";
     public final static String EXEC_RENAME = "RENAME";
 
     //public final static String EXEC_SHOW = "SHOW";
