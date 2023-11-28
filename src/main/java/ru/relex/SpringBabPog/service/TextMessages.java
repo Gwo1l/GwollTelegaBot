@@ -5,12 +5,14 @@ public class TextMessages {
     public final static String EXEC_DELETE = "DELETE";
     public final static String PATH_MESSAGE = "Введи путь до репозитория";
     public final static String EXEC_PATH = "SET_PATH";
+    public final static String EXEC_CREATE_PATH = "SET_PATH_CREATE";
     public final static String SAVE_MESSAGE = "Отправь свой документ";
     public final static String EXEC_SAVE = "SAVE";
     public final static String GET_MESSAGE = "Введи имя файла (вместе с расширением)";
     public final static String EXEC_GET = "GET";
     public final static String SHOW_MESSAGE = "Документы вашего репозитория: ";
     public final static String RENAME_MESSAGE = "Введите имя файла, который хотите переименовать, а затем через ':' введите новое имя \n(Имя файла : Новое имя файла)";
+    public final static String CREATE_PATH = "Введите путь к вашему репозиторию, а затем через ';' введите имя Например, /путь/к/вашему/репозиторию; Новая папка)";
     public final static String EXEC_RENAME = "RENAME";
 
     //public final static String EXEC_SHOW = "SHOW";
