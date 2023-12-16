@@ -1,6 +1,6 @@
 package ru.relex.SpringBabPog.service;
 
-import ru.relex.SpringBabPog.States.InitChatState;
+import ru.relex.SpringBabPog.states.InitChatState;
 
 public final class Chat
 {

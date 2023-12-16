@@ -1,4 +1,4 @@
-package ru.relex.SpringBabPog.States;
+package ru.relex.SpringBabPog.states;
 
 import ru.relex.SpringBabPog.service.*;
 
