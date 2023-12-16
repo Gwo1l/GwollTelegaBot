@@ -16,7 +16,7 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.relex.SpringBabPog.config.BotConfig;
 
 
-
+import java.nio.file.*;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
@@ -41,13 +41,14 @@ public class TelegramBot extends TelegramLongPollingBot {
 
     //public String PATH_TO_FILE = "C:/Users/endur/Documents/FilesFromTg/";
     public static final String HELP_TEXT =
-            "It's the bot saving your files on your PC\n\n" +
-                    "Type /start to start a welcome message\n\n" +
-                    "Type /savedocument to save your document\n\n" +
-                    "Type /getdocument to get document\n\n" +
-                    "Type /renamedocument to rename document\n\n" +
-                    "Type /deletedocument to delete your documents\n\n" +
-                    "Type /showdocuments to show all your saved documents";
+            "Это бот, сохраняющий ваши файлы на компьютере\n\n" +
+                    "Введите /start, чтобы запустить приветственное сообщение\n\n" +
+                    "Введите /savedocument для сохранения документа\n\n" +
+                    "Введите /getdocument для получения документа\n\n" +
+                    "Введите /renamedocument для переименования документа\n\n" +
+                    "Введите /deletedocument для удаления своих документов\n\n" +
+                    "Введите /createnewpath для создания новой папки\n\n" +
+                    "Введите /showdocuments, чтобы показать все сохраненные документы";
 
     final BotConfig config;
 
@@ -69,6 +70,7 @@ public class TelegramBot extends TelegramLongPollingBot {
             case TextMessages.EXEC_SAVE -> SaveDocument(chat, ourChatMessage.getDocument());
             case TextMessages.EXEC_GET -> OutputDocument(chat, ourChatMessage.getText());
             case TextMessages.EXEC_PATH -> SetRepositoryPath(chat, ourChatMessage.getText());
+            case TextMessages.EXEC_CREATE_PATH -> CreateFolder(chat, ourChatMessage.getText());
             case TextMessages.SHOW_MESSAGE -> ShowDocuments(chat);
             case TextMessages.EXEC_RENAME -> RenameDocument(chat, ourChatMessage.getText());
             case TextMessages.EXEC_DELETE -> DeleteDocument(chat, ourChatMessage.getText());
@@ -90,6 +92,28 @@ public class TelegramBot extends TelegramLongPollingBot {
 
     private ChatMessage ConvertToChatMessage(Message telegramMessage) {
         return new ChatMessage(telegramMessage.getText(), GetChatDocument(telegramMessage));
+    }
+
+
+    private void CreateFolder(Chat chat, String repository) {
+        String[] names = repository.split(";");
+        String repositoryPath = names[0];
+        String folderName = names[1];
+        Path path = Paths.get(repositoryPath, folderName);
+        ChatId chatId = chat.getChatId();
+
+        if (Files.exists(path)) {
+            sendMessage(chat.getChatId().getValue(), "Папка уже существует: " + path);
+        } else {
+            try {
+                // Создаем директорию
+                Files.createDirectories(path);
+                sendMessage(chat.getChatId().getValue(), "Папка успешно создана: " + path);
+            } catch (IOException e) {
+                sendMessage(chat.getChatId().getValue(), "Ошибка при создании папки " + path);
+                e.printStackTrace();
+            }
+        }
     }
 
     private ChatDocument GetChatDocument(Message telegramMessage) {
