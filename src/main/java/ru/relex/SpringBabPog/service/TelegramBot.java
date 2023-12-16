@@ -63,17 +63,17 @@ public class TelegramBot extends TelegramLongPollingBot {
         }
         Message message = update.getMessage();      //извлекаем сообщение из update
         Chat chat = getOrCreateChat(message);    //инициализируем chat
-        ChatMessage ourChatMessage = ConvertToChatMessage(message);     //инициализируем наше сообщение, которое содержит текст или сообщение
-        String textResponse = chat.MainAcceptMessage(ourChatMessage);      //это ответ, который тг бот отправляет в чат (посмотри реализацию acceptMessage)
+        ChatMessage ourChatMessage = convertToChatMessage(message);     //инициализируем наше сообщение, которое содержит текст или сообщение
+        String textResponse = chat.mainAcceptMessage(ourChatMessage);      //это ответ, который тг бот отправляет в чат (посмотри реализацию acceptMessage)
 
         switch (textResponse) {
-            case TextMessages.EXEC_SAVE -> SaveDocument(chat, ourChatMessage.getDocument());
-            case TextMessages.EXEC_GET -> OutputDocument(chat, ourChatMessage.getText());
-            case TextMessages.EXEC_PATH -> SetRepositoryPath(chat, ourChatMessage.getText());
-            case TextMessages.EXEC_CREATE_PATH -> CreateFolder(chat, ourChatMessage.getText());
-            case TextMessages.SHOW_MESSAGE -> ShowDocuments(chat);
-            case TextMessages.EXEC_RENAME -> RenameDocument(chat, ourChatMessage.getText());
-            case TextMessages.EXEC_DELETE -> DeleteDocument(chat, ourChatMessage.getText());
+            case TextMessages.EXEC_SAVE -> saveDocument(chat, ourChatMessage.getDocument());
+            case TextMessages.EXEC_GET -> outputDocument(chat, ourChatMessage.getText());
+            case TextMessages.EXEC_PATH -> setRepositoryPath(chat, ourChatMessage.getText());
+            case TextMessages.EXEC_CREATE_PATH -> createFolder(chat, ourChatMessage.getText());
+            case TextMessages.SHOW_MESSAGE -> showDocuments(chat);
+            case TextMessages.EXEC_RENAME -> renameDocument(chat, ourChatMessage.getText());
+            case TextMessages.EXEC_DELETE -> deleteDocument(chat, ourChatMessage.getText());
             default -> sendMessage(chat.getChatId().getValue(), textResponse);
         }
 
@@ -90,12 +90,12 @@ public class TelegramBot extends TelegramLongPollingBot {
         return chat;
     }
 
-    private ChatMessage ConvertToChatMessage(Message telegramMessage) {
-        return new ChatMessage(telegramMessage.getText(), GetChatDocument(telegramMessage));
+    private ChatMessage convertToChatMessage(Message telegramMessage) {
+        return new ChatMessage(telegramMessage.getText(), getChatDocument(telegramMessage));
     }
 
 
-    private void CreateFolder(Chat chat, String repository) {
+    private void createFolder(Chat chat, String repository) {
         String[] names = repository.split(";");
         String repositoryPath = names[0];
         String folderName = names[1];
@@ -116,7 +116,7 @@ public class TelegramBot extends TelegramLongPollingBot {
         }
     }
 
-    private ChatDocument GetChatDocument(Message telegramMessage) {
+    private ChatDocument getChatDocument(Message telegramMessage) {
         Document telegramDocument = telegramMessage.getDocument();
         if (telegramDocument == null) {
             return null;
@@ -125,7 +125,7 @@ public class TelegramBot extends TelegramLongPollingBot {
         return new ChatDocument(telegramDocument.getFileName(), telegramDocument.getFileSize(), telegramDocument);
     }
 
-    private void ShowDocuments(Chat chat) {
+    private void showDocuments(Chat chat) {
         String PATH_TO_FILE = chat.getChatInfo().getPATH_TO_FILE();
         File folder = new File(PATH_TO_FILE);
         if (folder.isDirectory()) {
@@ -147,7 +147,7 @@ public class TelegramBot extends TelegramLongPollingBot {
         }
     }
 
-    private void OutputDocument(Chat chat, String documentName) {
+    private void outputDocument(Chat chat, String documentName) {
         ChatId chatId = chat.getChatId();
         String PATH_TO_FILE = chat.getChatInfo().getPATH_TO_FILE();
         File file = new File(PATH_TO_FILE + documentName);
@@ -175,7 +175,7 @@ public class TelegramBot extends TelegramLongPollingBot {
         }
     }
 
-    private void RenameDocument(Chat chat, String documentName) {
+    private void renameDocument(Chat chat, String documentName) {
         String[] names = documentName.split(":");
         String oldName = names[0];
         String newName = names[1];
@@ -192,8 +192,8 @@ public class TelegramBot extends TelegramLongPollingBot {
             sendMessage(chatId.getValue(), "Имена файлов совпадают");
             return;
         }
-        String typeoldName = GetFileType(oldName);
-        String typenewName = GetFileType(newName);
+        String typeoldName = getFileType(oldName);
+        String typenewName = getFileType(newName);
         if (!typenewName.equals(typeoldName)) {
             sendMessage(chatId.getValue(), "Нельзя переименовать файл, т.к типы не совпадают");
             return;
@@ -213,7 +213,7 @@ public class TelegramBot extends TelegramLongPollingBot {
         }
     }
 
-    private String GetFileType(String filename) {
+    private String getFileType(String filename) {
         int ind = filename.lastIndexOf('.');
         if (ind == -1) {
             return "";
@@ -224,7 +224,7 @@ public class TelegramBot extends TelegramLongPollingBot {
     }
 
 
-    private void DeleteDocument(Chat chat, String documentName) {
+    private void deleteDocument(Chat chat, String documentName) {
         ChatId chatId = chat.getChatId();
         String PATH_TO_FILE = chat.getChatInfo().getPATH_TO_FILE();
         File file = new File(PATH_TO_FILE + documentName);
@@ -242,7 +242,7 @@ public class TelegramBot extends TelegramLongPollingBot {
         }
     }
 
-        private void SetRepositoryPath(Chat chat, String path) {
+        private void setRepositoryPath(Chat chat, String path) {
         File folder = new File(path);
         if (folder.isDirectory()) {
             chat.getChatInfo().setPATH_TO_FILE(path);
@@ -255,7 +255,7 @@ public class TelegramBot extends TelegramLongPollingBot {
 
     }
 
-    private void SaveDocument(Chat chat, ChatDocument recievedDocument) {
+    private void saveDocument(Chat chat, ChatDocument recievedDocument) {
         Document document = recievedDocument.document();
         try {
             GetFile getFile = new GetFile();
@@ -287,7 +287,7 @@ public class TelegramBot extends TelegramLongPollingBot {
         } else if (Objects.equals(textToSend, TextMessages.GET_MESSAGE) || Objects.equals(textToSend, TextMessages.DELETE_MESSAGE)) {
             message.setReplyMarkup(TelegramKeyboard("/back", "/getnothing"));
         }*/
-        KeyboardSwitch(textToSend, message);
+        keyboardSwitch(textToSend, message);
 
         try {
             execute(message);
@@ -296,7 +296,7 @@ public class TelegramBot extends TelegramLongPollingBot {
             e.printStackTrace();
         }
     }
-    private void KeyboardSwitch(String textToSend, SendMessage message) {
+    private void keyboardSwitch(String textToSend, SendMessage message) {
         switch (textToSend) {
             case TextMessages.SAVE_MESSAGE -> message.setReplyMarkup(TelegramKeyboard("/back", "/document"));
             case TextMessages.PATH_MESSAGE -> message.setReplyMarkup(TelegramKeyboard("/back", "/document"));

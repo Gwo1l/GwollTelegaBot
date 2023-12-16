@@ -9,6 +9,6 @@ public class ChatInfo {
         this.PATH_TO_FILE = PATH_TO_FILE;
     }
 
-    private String PATH_TO_FILE = "C:/Users/endur/Documents/FilesFromTg/";
+    private String PATH_TO_FILE = "C:/filesjavabot/";
 
 }

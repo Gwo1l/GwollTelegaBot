@@ -1,6 +1,6 @@
 package ru.relex.SpringBabPog.service;
 
-import ru.relex.SpringBabPog.States.InitChatState;
+import ru.relex.SpringBabPog.states.InitChatState;
 
 public final class Chat
 {
@@ -23,7 +23,7 @@ public final class Chat
         return id;
     }
 
-    public String MainAcceptMessage(ChatMessage message){       //метод обрабатывающий сообщение
+    public String mainAcceptMessage(ChatMessage message){       //метод обрабатывающий сообщение
         ChatMessageHandlingResult result = currentState.AcceptMessage(message);
         ChatState nextState = result.getNextState();
         String textResponse = result.getTextResponse();
