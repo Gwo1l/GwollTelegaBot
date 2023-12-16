@@ -1,6 +1,6 @@
-package ru.relex.SpringBabPog.States;
+package ru.relex.SpringBabPog.states;
 
-import ru.relex.SpringBabPog.States.InitChatState;
+import ru.relex.SpringBabPog.states.InitChatState;
 import ru.relex.SpringBabPog.service.ChatMessage;
 import ru.relex.SpringBabPog.service.ChatMessageHandlingResult;
 import ru.relex.SpringBabPog.service.ChatState;
