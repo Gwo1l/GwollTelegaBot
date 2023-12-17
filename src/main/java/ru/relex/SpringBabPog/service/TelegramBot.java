@@ -5,10 +5,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.GetFile;
-import org.telegram.telegrambots.meta.api.methods.send.SendDocument;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.*;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
@@ -25,11 +23,7 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Objects;
-import java.util.Map;
+import java.util.*;
 
 
 @Slf4j
@@ -68,17 +62,20 @@ public class TelegramBot extends TelegramLongPollingBot {
         String textResponse = chat.mainAcceptMessage(ourChatMessage);      //это ответ, который тг бот отправляет в чат (посмотри реализацию acceptMessage)
 
         switch (textResponse) {
-            case TextMessages.EXEC_SAVE -> saveDocument(chat, ourChatMessage.getDocument());
-            case TextMessages.EXEC_GET -> outputDocument(chat, ourChatMessage.getText());
-            case TextMessages.EXEC_PATH -> setRepositoryPath(chat, ourChatMessage.getText());
-            case TextMessages.EXEC_CREATE_PATH -> createFolder(chat, ourChatMessage.getText());
-            case TextMessages.SHOW_MESSAGE -> showDocuments(chat);
-            case TextMessages.EXEC_RENAME -> renameDocument(chat, ourChatMessage.getText());
-            case TextMessages.EXEC_DELETE -> deleteDocument(chat, ourChatMessage.getText());
+            //case TextMessages.EXEC_SAVE -> saveDocument(chat, ourChatMessage.getDocument());
+            case TextMessages.EXEC_TYPE -> executeType(chat, ourChatMessage.getFileName());
+            case TextMessages.EXEC_CD -> executeCD(chat, ourChatMessage.getFileName());
+
+            //case TextMessages.EXEC_PATH -> setRepositoryPath(chat, ourChatMessage.getText());
+            case TextMessages.EXEC_MKDIR -> executeMKDIR(chat, ourChatMessage.getFileName());
+            case TextMessages.EXEC_DIR -> executeDIR(chat);
+            //case TextMessages.EXEC_RENAME -> renameDocument(chat, ourChatMessage.getText());
+            //case TextMessages.EXEC_DELETE -> deleteDocument(chat, ourChatMessage.getText());
             default -> sendMessage(chat.getChatId().getValue(), textResponse);
         }
 
     }
+
 
     private Chat getOrCreateChat(Message message) {
         ChatId chatId = new ChatId(message.getChat().getId()); //получаем id чата
@@ -96,8 +93,21 @@ public class TelegramBot extends TelegramLongPollingBot {
     }
 
 
-    private void createFolder(Chat chat, String repository) {
-        String[] names = repository.split(";");
+    private void executeMKDIR(Chat chat, String repository) {
+        File newDirectory = new File(repository);
+        try {
+            if (!newDirectory.exists()) {
+                boolean directoryCreated = newDirectory.mkdir();
+                if (!directoryCreated) {
+                    sendMessage(chat.getChatId().getValue(), "Не удалось создать папку");
+                }
+            } else {
+                sendMessage(chat.getChatId().getValue(), "Папка " + repository + " уже существует");
+            }
+        } catch (SecurityException e) {
+            sendMessage(chat.getChatId().getValue(),"Ошибка безопасности при попытке создать папку " + repository);
+        }
+        /*String[] names = repository.split(";");
         String repositoryPath = names[0];
         String folderName = names[1];
         Path path = Paths.get(repositoryPath, folderName);
@@ -107,14 +117,14 @@ public class TelegramBot extends TelegramLongPollingBot {
             sendMessage(chat.getChatId().getValue(), "Папка уже существует: " + path);
         } else {
             try {
-                // Создаем директорию
+
                 Files.createDirectories(path);
                 sendMessage(chat.getChatId().getValue(), "Папка успешно создана: " + path);
             } catch (IOException e) {
                 sendMessage(chat.getChatId().getValue(), "Ошибка при создании папки " + path);
                 e.printStackTrace();
             }
-        }
+        }*/
     }
 
     private ChatDocument getChatDocument(Message telegramMessage) {
@@ -126,19 +136,36 @@ public class TelegramBot extends TelegramLongPollingBot {
         return new ChatDocument(telegramDocument.getFileName(), telegramDocument.getFileSize(), telegramDocument);
     }
 
-    private void showDocuments(Chat chat) {
+    private void executeDIR(Chat chat) {
         String PATH_TO_FILE = chat.getChatInfo().getPATH_TO_FILE();
         File folder = new File(PATH_TO_FILE);
+        int countDirectory = 0;
+        int countFile = 0;
+        double summaryFileSize = 0;
         if (folder.isDirectory()) {
             File[] files = folder.listFiles();
             if (files != null && files.length > 0) {
                 StringBuilder sb = new StringBuilder();
-                // Перебираем файлы и добавляем их имена в строку
                 for (File file : files) {
-                    sb.append(file.getName()).append("\n\n");
+                    long timestamp = file.lastModified();
+                    Date creationDate = new Date(timestamp);
+                    if (file.isDirectory()) {
+                        countDirectory += 1;
+                        sb.append(creationDate).append("   <DIR>   ").append(file.getName()).append("\n\n");
+                    }
+                    else{
+                        long fileSize = file.length();
+                        summaryFileSize += fileSize;
+                        countFile += 1;
+                        sb.append(creationDate).append("   ").append(fileSize).append("    ").append(file.getName()).append("\n\n");
+                    }
                 }
-                sendMessage(chat.getChatId().getValue(), TextMessages.SHOW_MESSAGE);
+                String filesStatistics = countFile + " файлов  " + summaryFileSize + " байт";
+                String repositoryStatistics = countDirectory + " папок";
+                sendMessage(chat.getChatId().getValue(), TextMessages.EXEC_DIR);
                 sendMessage(chat.getChatId().getValue(), sb.toString());
+                sendMessage(chat.getChatId().getValue(), filesStatistics);
+                sendMessage(chat.getChatId().getValue(), repositoryStatistics);
                 sendMessage(chat.getChatId().getValue(), "Введите type или more чтобы получить документ");
             } else {
                 sendMessage(chat.getChatId().getValue(), "Папка пуста");
@@ -148,10 +175,10 @@ public class TelegramBot extends TelegramLongPollingBot {
         }
     }
 
-    private void outputDocument(Chat chat, String documentName) {
+    private void executeType(Chat chat, String documentName) {
         ChatId chatId = chat.getChatId();
         String PATH_TO_FILE = chat.getChatInfo().getPATH_TO_FILE();
-        File file = new File(PATH_TO_FILE + documentName);
+        /*File file = new File(PATH_TO_FILE + documentName);
         if (file.exists()) {
             // Создание объекта InputFile из файла
             InputFile inputFile = new InputFile(file);
@@ -173,6 +200,15 @@ public class TelegramBot extends TelegramLongPollingBot {
             }
         } else {
             sendMessage(chatId.getValue(), "Файл отсутствует или неправильное имя файла");
+        }*/
+        try {
+            File file = new File(PATH_TO_FILE + documentName);
+            if (!file.createNewFile()) {
+                sendMessage(chatId.getValue(), "Файл уже создан");
+            }
+        } catch (IOException e) {
+            sendMessage(chatId.getValue(), "Произошла ошибка при создании файла.");
+            e.printStackTrace();
         }
     }
 
@@ -243,15 +279,29 @@ public class TelegramBot extends TelegramLongPollingBot {
         }
     }
 
-        private void setRepositoryPath(Chat chat, String path) {
-        File folder = new File(path);
-        if (folder.isDirectory()) {
-            chat.getChatInfo().setPATH_TO_FILE(path);
-            ChatId chatId = chat.getChatId();
-            sendMessage(chatId.getValue(), "Путь изменен на " + path);
+        private void executeCD(Chat chat, String repository) {
+        ChatId chatId = chat.getChatId();
+        String PATH_TO_FILE = chat.getChatInfo().getPATH_TO_FILE();
+        if (Objects.equals(repository, "..")) {
+            int lastSeparatorIndex = PATH_TO_FILE.substring(0, PATH_TO_FILE.length() - 1).lastIndexOf('/');
+            if (lastSeparatorIndex != -1) {
+                chat.getChatInfo().setPATH_TO_FILE(PATH_TO_FILE.substring(0, lastSeparatorIndex + 1));
+                sendMessage(chatId.getValue(), chat.getChatInfo().getPATH_TO_FILE());
+            }
+            else {
+                sendMessage(chatId.getValue(), PATH_TO_FILE);
+            }
         }
         else {
-            sendMessage(chat.getChatId().getValue(), "Неверный путь");
+            String pathRepository = PATH_TO_FILE + repository + "/";
+            File folder = new File(pathRepository);
+            if (folder.isDirectory()) {
+                chat.getChatInfo().setPATH_TO_FILE(pathRepository);
+                sendMessage(chatId.getValue(), pathRepository);
+            }
+            else {
+                sendMessage(chat.getChatId().getValue(), "Не существует такого репозитория");
+            }
         }
 
     }
@@ -300,7 +350,7 @@ public class TelegramBot extends TelegramLongPollingBot {
     private void keyboardSwitch(String textToSend, SendMessage message) {
         switch (textToSend) {
             case TextMessages.SAVE_MESSAGE -> message.setReplyMarkup(TelegramKeyboard("/back", "/document"));
-            case TextMessages.PATH_MESSAGE -> message.setReplyMarkup(TelegramKeyboard("/back", "/document"));
+            case TextMessages.EXEC_CD -> message.setReplyMarkup(TelegramKeyboard("/back", "/document"));
         }
     }
 

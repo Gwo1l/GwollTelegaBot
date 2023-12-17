@@ -7,7 +7,7 @@ import ru.relex.SpringBabPog.service.TextMessages;
 
 public class DeleteDocumentState extends ChatState {
     @Override
-    public ChatMessageHandlingResult AcceptMessage(ChatMessage message) {
+    public ChatMessageHandlingResult acceptMessage(ChatMessage message) {
         return switch (message.getText()) {
             case "/getnothing" -> new ChatMessageHandlingResult("Ничего не возвращено", new InitChatState());
             case "/back" -> new ChatMessageHandlingResult("Отмена ожидания файла", new InitChatState());

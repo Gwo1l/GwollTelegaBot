@@ -13,7 +13,7 @@ public class TextMessages {
             "ERASE \n" +
             " [/P] [/F] [/S] [/Q] [/A[[:]атрибуты]] имена";
     public final static String EXEC_DELETE = "DELETE";
-    public final static String PATH_MESSAGE = "Команды CD и CHDIR используется для просмотра или изменения пути текущего каталога " +
+    public final static String EXEC_CD = "Команды CD и CHDIR используется для просмотра или изменения пути текущего каталога " +
             "CHDIR \n" +
             " [/D] [диск:][путь]\n" +
             "\n" +
@@ -31,14 +31,14 @@ public class TextMessages {
             "SAVE" +
             "имя_файла";
     public final static String EXEC_SAVE = "SAVE";
-    public final static String GET_MESSAGE = "TYPE (MORE) – вывод на экран файла" +
+    public final static String EXEC_TYPE = "TYPE (MORE) – вывод на экран файла" +
             "Формат командной строки:\n" +
             "\n" +
             "TYPE \n" +
             "[диск:][путь]имя_файла";
     public final static String EXEC_GET = "GET";
     private static String PATH_TO_FILE;
-    public final static String SHOW_MESSAGE = "Каталог: ";
+    public final static String EXEC_DIR = "Каталог: ";
     public final static String RENAME_MESSAGE = "Команда RENAME имеет синоним REN и предназначена для переименования файлов и каталогов.\n" +
             "\n" +
             "Формат командной строки:\n" +
@@ -58,7 +58,7 @@ public class TextMessages {
             "имя_файла1 - исходное имя файла или каталога;\n" +
             "\n" +
             "имя_файла2 - новое имя файла или каталога;";
-    public final static String CREATE_PATH = "mkdir <путь к папке>\n" +
+    public final static String EXEC_MKDIR = "mkdir <путь к папке>\n" +
             "\n" +
             "Например:\n" +
             "\n" +

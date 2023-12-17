@@ -12,7 +12,7 @@ public class WaitForDocumentState extends ChatState {
 
 
     @Override
-    public ChatMessageHandlingResult AcceptMessage(ChatMessage message) {       //реализация acceptMessage в контесте документа
+    public ChatMessageHandlingResult acceptMessage(ChatMessage message) {       //реализация acceptMessage в контесте документа
         if (message.getDocument() != null) {    //проверяем пришел ли нам документ
 
             //Document document = message.getDocument();

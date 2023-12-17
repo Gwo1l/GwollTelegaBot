@@ -24,7 +24,7 @@ public final class Chat
     }
 
     public String mainAcceptMessage(ChatMessage message){       //метод обрабатывающий сообщение
-        ChatMessageHandlingResult result = currentState.AcceptMessage(message);
+        ChatMessageHandlingResult result = currentState.acceptMessage(message);
         ChatState nextState = result.getNextState();
         String textResponse = result.getTextResponse();
         currentState = nextState;
