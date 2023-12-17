@@ -43,12 +43,13 @@ public class TelegramBot extends TelegramLongPollingBot {
     public static final String HELP_TEXT =
             "Это бот, сохраняющий ваши файлы на компьютере\n\n" +
                     "Введите /start, чтобы запустить приветственное сообщение\n\n" +
-                    "Введите /savedocument для сохранения документа\n\n" +
-                    "Введите /getdocument для получения документа\n\n" +
-                    "Введите /renamedocument для переименования документа\n\n" +
-                    "Введите /deletedocument для удаления своих документов\n\n" +
-                    "Введите /createnewpath для создания новой папки\n\n" +
-                    "Введите /showdocuments, чтобы показать все сохраненные документы";
+                    "Введите save для сохранения документа\n\n" +
+                    "Введите type или more для получения документа\n\n" +
+                    "Введите ren или rename для переименования документа\n\n" +
+                    "Введите del или erase для удаления своих документов\n\n" +
+                    "Введите mkdir для создания новой папки\n\n" +
+                    "Введите cd для изменения директории\n\n" +
+                    "Введите dir, чтобы показать все сохраненные документы";
 
     final BotConfig config;
 
@@ -138,7 +139,7 @@ public class TelegramBot extends TelegramLongPollingBot {
                 }
                 sendMessage(chat.getChatId().getValue(), TextMessages.SHOW_MESSAGE);
                 sendMessage(chat.getChatId().getValue(), sb.toString());
-                sendMessage(chat.getChatId().getValue(), "Введите /getdocument чтобы получить документ");
+                sendMessage(chat.getChatId().getValue(), "Введите type или more чтобы получить документ");
             } else {
                 sendMessage(chat.getChatId().getValue(), "Папка пуста");
             }
