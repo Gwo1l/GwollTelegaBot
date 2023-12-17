@@ -69,6 +69,7 @@ public class TelegramBot extends TelegramLongPollingBot {
             //case TextMessages.EXEC_PATH -> setRepositoryPath(chat, ourChatMessage.getText());
             case TextMessages.EXEC_MKDIR -> executeMKDIR(chat, ourChatMessage.getFileName());
             case TextMessages.EXEC_DIR -> executeDIR(chat);
+            case TextMessages.EXEC_REN -> executeREN(chat, ourChatMessage.getFileName());
             //case TextMessages.EXEC_RENAME -> renameDocument(chat, ourChatMessage.getText());
             //case TextMessages.EXEC_DELETE -> deleteDocument(chat, ourChatMessage.getText());
             default -> sendMessage(chat.getChatId().getValue(), textResponse);
@@ -97,16 +98,20 @@ public class TelegramBot extends TelegramLongPollingBot {
         File newDirectory = new File(repository);
         try {
             if (!newDirectory.exists()) {
-                boolean directoryCreated = newDirectory.mkdir();
+                boolean directoryCreated = newDirectory.mkdirs();
                 if (!directoryCreated) {
                     sendMessage(chat.getChatId().getValue(), "Не удалось создать папку");
+                } else {
+                    sendMessage(chat.getChatId().getValue(),"Папка " + repository + " успешно создана");
                 }
             } else {
                 sendMessage(chat.getChatId().getValue(), "Папка " + repository + " уже существует");
             }
         } catch (SecurityException e) {
-            sendMessage(chat.getChatId().getValue(),"Ошибка безопасности при попытке создать папку " + repository);
+            sendMessage(chat.getChatId().getValue(),
+                    "Ошибка безопасности при попытке создать папку " + repository);
         }
+    }
         /*String[] names = repository.split(";");
         String repositoryPath = names[0];
         String folderName = names[1];
@@ -125,7 +130,7 @@ public class TelegramBot extends TelegramLongPollingBot {
                 e.printStackTrace();
             }
         }*/
-    }
+
 
     private ChatDocument getChatDocument(Message telegramMessage) {
         Document telegramDocument = telegramMessage.getDocument();
@@ -212,7 +217,7 @@ public class TelegramBot extends TelegramLongPollingBot {
         }
     }
 
-    private void renameDocument(Chat chat, String documentName) {
+    private void executeREN(Chat chat, String documentName) {
         String[] names = documentName.split(":");
         String oldName = names[0];
         String newName = names[1];

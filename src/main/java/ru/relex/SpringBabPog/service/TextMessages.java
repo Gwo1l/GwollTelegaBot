@@ -39,14 +39,14 @@ public class TextMessages {
     public final static String EXEC_GET = "GET";
     private static String PATH_TO_FILE;
     public final static String EXEC_DIR = "Каталог: ";
-    public final static String RENAME_MESSAGE = "Команда RENAME имеет синоним REN и предназначена для переименования файлов и каталогов.\n" +
+    public final static String EXEC_REN = "Команда RENAME имеет синоним REN и предназначена для переименования файлов и каталогов.\n" +
             "\n" +
             "Формат командной строки:\n" +
             "\n" +
-            "RENAME \n" +
+            "RENAME" +
             "[диск:][путь]имя_файла1 : имя_файла2\n" +
             "\n" +
-            "REN \n" +
+            "REN" +
             "[диск:][путь]имя_файла1 : имя_файла2\n" +
             "\n" +
             "Параметры командной строки:\n" +
