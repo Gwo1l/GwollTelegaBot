@@ -1,7 +1,9 @@
 package ru.relex.SpringBabPog.service;
 
 public class TextMessages {
-    public final static String EXEC_DEL = "Команда DEL (ERASE) используется для удаления одного или нескольких файлов.\n" +
+    public final static String EXEC_DEL = "del";
+
+    public final static String HELP_DEL = "Команда DEL (ERASE) используется для удаления одного или нескольких файлов.\n" +
             "\n" +
             "Формат командной строки:\n" +
             "\n" +
@@ -12,8 +14,10 @@ public class TextMessages {
             "\n" +
             "ERASE \n" +
             " [/P] [/F] [/S] [/Q] [/A[[:]атрибуты]] имена";
-    public final static String EXEC_DELETE = "DELETE";
-    public final static String EXEC_CD = "Команды CD и CHDIR используется для просмотра или изменения пути текущего каталога " +
+
+    public final static String EXEC_CD = "cd";
+
+    public final static String HELP_CD = "Команды CD и CHDIR используется для просмотра или изменения пути текущего каталога " +
             "CHDIR \n" +
             " [/D] [диск:][путь]\n" +
             "\n" +

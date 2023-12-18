@@ -1,6 +1,6 @@
 package ru.relex.SpringBabPog.service;
 
-public final class ChatMessageHandlingResult    //нужная хрень короче
+public final class ChatMessageHandlingResult
 {
     private final String text;
     private final ChatState nextState;
