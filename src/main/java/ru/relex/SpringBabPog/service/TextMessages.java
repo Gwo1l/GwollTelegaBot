@@ -1,7 +1,7 @@
 package ru.relex.SpringBabPog.service;
 
 public class TextMessages {
-    public final static String DELETE_MESSAGE = "Команда DEL (ERASE) используется для удаления одного или нескольких файлов.\n" +
+    public final static String EXEC_DEL = "Команда DEL (ERASE) используется для удаления одного или нескольких файлов.\n" +
             "\n" +
             "Формат командной строки:\n" +
             "\n" +
@@ -39,6 +39,7 @@ public class TextMessages {
     public final static String EXEC_GET = "GET";
     private static String PATH_TO_FILE;
     public final static String EXEC_DIR = "Каталог: ";
+    public final static String EXEC_START = "старт";
     public final static String EXEC_REN = "Команда RENAME имеет синоним REN и предназначена для переименования файлов и каталогов.\n" +
             "\n" +
             "Формат командной строки:\n" +

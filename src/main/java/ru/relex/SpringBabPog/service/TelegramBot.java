@@ -13,8 +13,8 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.relex.SpringBabPog.config.BotConfig;
 
-
-import java.nio.file.*;
+import java.awt.Desktop;
+//import java.awt.*;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
@@ -24,6 +24,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.*;
+import java.util.List;
 
 
 @Slf4j
@@ -65,14 +66,30 @@ public class TelegramBot extends TelegramLongPollingBot {
             //case TextMessages.EXEC_SAVE -> saveDocument(chat, ourChatMessage.getDocument());
             case TextMessages.EXEC_TYPE -> executeType(chat, ourChatMessage.getFileName());
             case TextMessages.EXEC_CD -> executeCD(chat, ourChatMessage.getFileName());
-
+            case TextMessages.EXEC_START -> executeStart(chat, ourChatMessage.getFileName());
             //case TextMessages.EXEC_PATH -> setRepositoryPath(chat, ourChatMessage.getText());
             case TextMessages.EXEC_MKDIR -> executeMKDIR(chat, ourChatMessage.getFileName());
             case TextMessages.EXEC_DIR -> executeDIR(chat);
             case TextMessages.EXEC_REN -> executeREN(chat, ourChatMessage.getFileName());
             //case TextMessages.EXEC_RENAME -> renameDocument(chat, ourChatMessage.getText());
-            //case TextMessages.EXEC_DELETE -> deleteDocument(chat, ourChatMessage.getText());
+            case TextMessages.EXEC_DEL -> executeDEL(chat, ourChatMessage.getFileName());
             default -> sendMessage(chat.getChatId().getValue(), textResponse);
+        }
+
+    }
+
+    private void executeStart(Chat chat, String fileName) {
+        String PATH_TO_FILE = chat.getChatInfo().getPATH_TO_FILE();
+        try {
+            File file = new File(PATH_TO_FILE + fileName);
+            if (file.exists()) {
+                Desktop desktop = Desktop.getDesktop();
+                desktop.open(file);
+            } else {
+                sendMessage(chat.getChatId().getValue(), "Файл " + fileName + " не существует");
+            }
+        } catch (IOException e) {
+            sendMessage(chat.getChatId().getValue(), "Произошла ошибка при открытии файла: " + e.getMessage());
         }
 
     }
@@ -95,7 +112,7 @@ public class TelegramBot extends TelegramLongPollingBot {
 
 
     private void executeMKDIR(Chat chat, String repository) {
-        File newDirectory = new File(repository);
+        File newDirectory = new File(chat.getChatInfo().getPATH_TO_FILE() + repository);
         try {
             if (!newDirectory.exists()) {
                 boolean directoryCreated = newDirectory.mkdirs();
@@ -171,7 +188,6 @@ public class TelegramBot extends TelegramLongPollingBot {
                 sendMessage(chat.getChatId().getValue(), sb.toString());
                 sendMessage(chat.getChatId().getValue(), filesStatistics);
                 sendMessage(chat.getChatId().getValue(), repositoryStatistics);
-                sendMessage(chat.getChatId().getValue(), "Введите type или more чтобы получить документ");
             } else {
                 sendMessage(chat.getChatId().getValue(), "Папка пуста");
             }
@@ -183,29 +199,6 @@ public class TelegramBot extends TelegramLongPollingBot {
     private void executeType(Chat chat, String documentName) {
         ChatId chatId = chat.getChatId();
         String PATH_TO_FILE = chat.getChatInfo().getPATH_TO_FILE();
-        /*File file = new File(PATH_TO_FILE + documentName);
-        if (file.exists()) {
-            // Создание объекта InputFile из файла
-            InputFile inputFile = new InputFile(file);
-
-            // Создание объекта SendDocument
-            SendDocument sendDocument = new SendDocument();
-            sendDocument.setChatId(chatId.getValue()); // Установка ID чата для отправки документа
-            sendDocument.setDocument(inputFile); // Установка документа для отправки
-
-            try {
-                // Отправка документа в телеграм боте
-                execute(sendDocument);
-                sendMessage(chatId.getValue(), "Файл выведен!");
-                // Дополнительные действия после успешной отправки...
-            } catch (TelegramApiException e) {
-                e.printStackTrace();
-                sendMessage(chatId.getValue(), "Ошибка вывода документа");
-                // Действия в случае ошибки при отправке документа...
-            }
-        } else {
-            sendMessage(chatId.getValue(), "Файл отсутствует или неправильное имя файла");
-        }*/
         try {
             File file = new File(PATH_TO_FILE + documentName);
             if (!file.createNewFile()) {
@@ -266,7 +259,7 @@ public class TelegramBot extends TelegramLongPollingBot {
     }
 
 
-    private void deleteDocument(Chat chat, String documentName) {
+    private void executeDEL(Chat chat, String documentName) {
         ChatId chatId = chat.getChatId();
         String PATH_TO_FILE = chat.getChatInfo().getPATH_TO_FILE();
         File file = new File(PATH_TO_FILE + documentName);
