@@ -3,73 +3,70 @@ package ru.relex.SpringBabPog.service;
 public class TextMessages {
     public final static String EXEC_DEL = "del";
 
-    public final static String HELP_DEL = "Команда DEL (ERASE) используется для удаления одного или нескольких файлов.\n" +
+    public final static String HELP_DEL = "Удаление файла в текущей директории.\n" +
             "\n" +
-            "Формат командной строки:\n" +
-            "\n" +
-            "DEL \n" +
-            " [/P] [/F] [/S] [/Q] [/A[[:]атрибуты]] имена\n" +
-            "\n" +
-            "Или\n" +
-            "\n" +
-            "ERASE \n" +
-            " [/P] [/F] [/S] [/Q] [/A[[:]атрибуты]] имена";
+            "DEL" +
+            " [имя файла]\n" +
+            "ERASE" +
+            " [имя файла]";
 
     public final static String EXEC_CD = "cd";
 
-    public final static String HELP_CD = "Команды CD и CHDIR используется для просмотра или изменения пути текущего каталога " +
-            "CHDIR \n" +
-            " [/D] [диск:][путь]\n" +
+    public final static String HELP_CD = "Изменение пути текущего каталога." +
+            "Формат командной строки:" +
+            "CD" +
+            "[диск:][путь]\n" +
+            "\nПараметры командной строки:\n" +
             "\n" +
-            "CD \n" +
-            "[/D] [диск:][путь]\n" +
+            "диск: - диск на котором находится исходный файл или каталог;\n" +
             "\n" +
-            "CHDIR \n " +
-            "[..]\n" +
-            "\n" +
-            "CD \n" +
-            "[..]";
+            "путь - путь к исходному файлу или каталогу;\n" +
+            "\nНапример:\n" +
+            "C:\\Users\\Имя_Пользователя\\Папка";
     public final static String EXEC_PATH = "SET_PATH";
     public final static String EXEC_CREATE_PATH = "SET_PATH_CREATE";
-    public final static String SAVE_MESSAGE = "SAVE - сохранение отправленного файла" +
-            "SAVE" +
-            "имя_файла";
+    public final static String HELP_SAVE = "Сохранение отправленного файла.\n" +
+            //"\nИспользование: \n" +
+            "save <файл>";
     public final static String EXEC_SAVE = "SAVE";
-    public final static String EXEC_TYPE = "TYPE (MORE) – вывод на экран файла" +
-            "Формат командной строки:\n" +
+    public final static String EXEC_TYPE = "TYPE";
+    public final static String HELP_TYPE = "Вывод файла" +
+            //"Формат командной строки:\n" +
             "\n" +
             "TYPE \n" +
             "[диск:][путь]имя_файла";
     public final static String EXEC_GET = "GET";
+    public final static String HELP = "help";
     private static String PATH_TO_FILE;
     public final static String EXEC_DIR = "Каталог: ";
+    public final static String HELP_DIR = "Получение списка файлов и папок в указанной директории.\n" +
+            "\nИспользование: \n" +
+            "dir - выводит список файлов и папок в текущей директории\n";
     public final static String EXEC_START = "старт";
-    public final static String EXEC_REN = "Команда RENAME имеет синоним REN и предназначена для переименования файлов и каталогов.\n" +
+    public final static String EXEC_REN = "REN";
+    public final static String HELP_REN = "Переименование файлов и каталогов.\n" +
             "\n" +
             "Формат командной строки:\n" +
             "\n" +
             "RENAME" +
             "[диск:][путь]имя_файла1 : имя_файла2\n" +
-            "\n" +
             "REN" +
             "[диск:][путь]имя_файла1 : имя_файла2\n" +
-            "\n" +
             "Параметры командной строки:\n" +
-            "\n" +
             "диск: - диск на котором находится исходный файл или каталог;\n" +
-            "\n" +
             "путь - путь к исходному файлу или каталогу;\n" +
-            "\n" +
             "имя_файла1 - исходное имя файла или каталога;\n" +
-            "\n" +
             "имя_файла2 - новое имя файла или каталога;";
-    public final static String EXEC_MKDIR = "mkdir <путь к папке>\n" +
+    public final static String EXEC_MKDIR = "MKDIR";
+    public final static String HELP_MKDIR =
+            "Создание новой папки (директории).\n" +
+            "\nИспользование:\n" +
+            "mkdir <путь к папке>\n" +
             "\n" +
             "Например:\n" +
-            "\n" +
             "mkdir C:\\Users\\Имя_Пользователя\\Новая_Папка";
     public final static String EXEC_RENAME = "RENAME";
 
     //public final static String EXEC_SHOW = "SHOW";
-    public final static String WRONG_MESSAGE = "Слышь, нормально общайся! Неправильная команда";
+    public final static String WRONG_MESSAGE = "Не является внутренней или внешней командой, исполняемой программой или пакетным файлом.";
 }
