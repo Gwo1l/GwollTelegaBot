@@ -13,10 +13,10 @@ public class TextMessages {
     public final static String EXEC_CD = "cd";
 
     public final static String HELP_CD = "Изменение пути текущего каталога." +
-            "Формат командной строки:" +
+            //"Формат командной строки:" +
             "CD" +
             "[диск:][путь]\n" +
-            "\nПараметры командной строки:\n" +
+            //"\nПараметры командной строки:\n" +
             "\n" +
             "диск: - диск на котором находится исходный файл или каталог;\n" +
             "\n" +
@@ -40,19 +40,19 @@ public class TextMessages {
     private static String PATH_TO_FILE;
     public final static String EXEC_DIR = "Каталог: ";
     public final static String HELP_DIR = "Получение списка файлов и папок в указанной директории.\n" +
-            "\nИспользование: \n" +
+            //"\nИспользование: \n" +
             "dir - выводит список файлов и папок в текущей директории\n";
     public final static String EXEC_START = "старт";
     public final static String EXEC_REN = "REN";
     public final static String HELP_REN = "Переименование файлов и каталогов.\n" +
             "\n" +
-            "Формат командной строки:\n" +
+            //"Формат командной строки:\n" +
             "\n" +
             "RENAME" +
             "[диск:][путь]имя_файла1 : имя_файла2\n" +
             "REN" +
             "[диск:][путь]имя_файла1 : имя_файла2\n" +
-            "Параметры командной строки:\n" +
+            //"Параметры командной строки:\n" +
             "диск: - диск на котором находится исходный файл или каталог;\n" +
             "путь - путь к исходному файлу или каталогу;\n" +
             "имя_файла1 - исходное имя файла или каталога;\n" +
@@ -60,7 +60,7 @@ public class TextMessages {
     public final static String EXEC_MKDIR = "MKDIR";
     public final static String HELP_MKDIR =
             "Создание новой папки (директории).\n" +
-            "\nИспользование:\n" +
+            //"\nИспользование:\n" +
             "mkdir <путь к папке>\n" +
             "\n" +
             "Например:\n" +
