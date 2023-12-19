@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
+import org.telegram.telegrambots.meta.api.methods.GetFile;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.*;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
@@ -15,8 +16,15 @@ import ru.relex.SpringBabPog.config.BotConfig;
 import java.awt.Desktop;
 import java.io.IOException;
 import java.io.File;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.*;
 import java.util.List;
+
 
 
 @Slf4j
@@ -62,6 +70,7 @@ public class TelegramBot extends TelegramLongPollingBot {
             case TextMessages.EXEC_DIR -> executeDIR(chat);
             case TextMessages.EXEC_REN -> executeREN(chat, ourChatMessage.getFileName());
             case TextMessages.EXEC_DEL -> executeDEL(chat, ourChatMessage.getFileName());
+            case TextMessages.EXEC_SAVE -> executeSave(chat, ourChatMessage.getDocument());
             default -> sendMessage(chat.getChatId().getValue(), textResponse);
         }
 
@@ -116,6 +125,25 @@ public class TelegramBot extends TelegramLongPollingBot {
         } catch (SecurityException e) {
             sendMessage(chat.getChatId().getValue(),
                     "Ошибка безопасности при попытке создать папку " + repository);
+        }
+    }
+
+    private void executeSave(Chat chat, ChatDocument recievedDocument) {
+        Document document = recievedDocument.document();
+        try {
+            GetFile getFile = new GetFile();
+            getFile.setFileId(document.getFileId());
+            org.telegram.telegrambots.meta.api.objects.File file = execute(getFile);
+            String fileUrl = "https://api.telegram.org/file/bot" + getBotToken() + "/" + file.getFilePath();
+            URL url = new URL(fileUrl);
+            InputStream in = url.openStream();
+            Files.copy(in, Paths.get(chat.getChatInfo().getPATH_TO_FILE() + document.getFileName()), StandardCopyOption.REPLACE_EXISTING);
+            in.close();
+            sendMessage(chat.getChatId().getValue(), "Документ сохранен!");
+        } catch (TelegramApiException | MalformedURLException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
@@ -291,7 +319,7 @@ public class TelegramBot extends TelegramLongPollingBot {
 
     private void keyboardSwitch(String textToSend, SendMessage message) {
         switch (textToSend) {
-            case TextMessages.SAVE_MESSAGE -> message.setReplyMarkup(telegramKeyboard("/back", "/document"));
+            case TextMessages.EXEC_SAVE -> message.setReplyMarkup(telegramKeyboard("/back", "/document"));
             case TextMessages.EXEC_CD -> message.setReplyMarkup(telegramKeyboard("/back", "/document"));
         }
     }

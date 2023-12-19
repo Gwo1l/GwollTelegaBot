@@ -11,16 +11,24 @@ public final class ChatMessage
     private final ChatDocument document;
 
     public ChatMessage(String text, ChatDocument document) {
-        if (text.contains(" ")) {
-            String[] spl = text.split(" ");
-            this.text = spl[0];
-            this.fileName = spl[1];
+        if (text != null) {
+            if (text.contains(" ")) {
+                String[] spl = text.split(" ");
+                this.text = spl[0];
+                this.fileName = spl[1];
+                this.document = document;
+            }
+            else {
+                this.text = text;
+                this.fileName = null;
+                this.document = document;
+            }
         }
         else {
-            this.text = text;
+            this.text = null;
             this.fileName = null;
+            this.document = document;
         }
-        this.document = document;
     }
 
     public String getText(){
