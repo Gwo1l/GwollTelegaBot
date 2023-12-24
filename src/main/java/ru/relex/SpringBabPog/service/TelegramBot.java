@@ -37,7 +37,7 @@ public class TelegramBot extends TelegramLongPollingBot {
     //public String PATH_TO_FILE = "C:/Users/endur/Documents/FilesFromTg/";
     public static final String HELP_TEXT =
             "Это бот, сохраняющий ваши файлы на компьютере\n\n" +
-                    "Введите /start, чтобы запустить приветственное сообщение\n\n" +
+                    "Введите start, чтобы запустить приветственное сообщение\n\n" +
                     "Введите save для сохранения документа\n\n" +
                     "Введите type или more для получения документа\n\n" +
                     "Введите ren или rename для переименования документа\n\n" +
@@ -298,6 +298,7 @@ public class TelegramBot extends TelegramLongPollingBot {
 
 
 
+
     private void sendMessage(long chatId, String textToSend) {
         SendMessage message = new SendMessage();
         message.setChatId(String.valueOf(chatId));      //задать айди сообщению, чтоб знал куда отправлять
@@ -308,7 +309,7 @@ public class TelegramBot extends TelegramLongPollingBot {
         } else if (Objects.equals(textToSend, TextMessages.GET_MESSAGE) || Objects.equals(textToSend, TextMessages.DELETE_MESSAGE)) {
             message.setReplyMarkup(TelegramKeyboard("/back", "/getnothing"));
         }*/
-        keyboardSwitch(textToSend, message);
+       // keyboardSwitch(textToSend, message);
 
         try {
             execute(message);
@@ -319,8 +320,8 @@ public class TelegramBot extends TelegramLongPollingBot {
 
     private void keyboardSwitch(String textToSend, SendMessage message) {
         switch (textToSend) {
-            case TextMessages.EXEC_SAVE -> message.setReplyMarkup(telegramKeyboard("/back", "/document"));
-            case TextMessages.EXEC_CD -> message.setReplyMarkup(telegramKeyboard("/back", "/document"));
+            case TextMessages.EXEC_SAVE -> message.setReplyMarkup(telegramKeyboard("back", "/document"));
+            case TextMessages.EXEC_CD -> message.setReplyMarkup(telegramKeyboard("back", "/document"));
         }
     }
 

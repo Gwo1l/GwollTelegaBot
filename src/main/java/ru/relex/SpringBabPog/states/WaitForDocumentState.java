@@ -23,8 +23,8 @@ public class WaitForDocumentState extends ChatState {
         }
 
         return switch (message.getText()){         //иначе вот
-            case "/document" -> new ChatMessageHandlingResult("Документ принят", new InitChatState());
-            case "/back" -> new ChatMessageHandlingResult("Отмена ожидания файла", new InitChatState());
+            case "document" -> new ChatMessageHandlingResult("Документ принят", new InitChatState());
+            case "back" -> new ChatMessageHandlingResult("Отмена ожидания файла", new InitChatState());
             default -> new ChatMessageHandlingResult("Я тебя не понял, отправь документ или введи /back", this);
         };
     }
